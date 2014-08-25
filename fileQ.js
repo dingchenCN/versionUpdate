@@ -1,6 +1,7 @@
 var admzip = require('adm-zip'),
     fs = require('fs'),
     rmdir = require('rimraf'),
+    exec = require('child_process').exec,
     Q = require('q');
 
 
@@ -25,9 +26,17 @@ function addToZip(sourcePath, destPath){
 
     setTimeout(function(){
         try{
-            var zip = new admzip();
-            zip.addLocalFolder(sourcePath);
-            zip.writeZip(destPath);
+            // var zip = new admzip();
+            // zip.addLocalFolder(sourcePath);
+            // zip.writeZip(destPath);
+            var exezip = exec('"c:/Program Files (x86)/7-Zip/7z.exe" a ' + destPath + ' ./' + sourcePath + '/*',
+                function (error, stdout, stderr) {
+                //console.log('stdout: ' + stdout);
+                //console.log('stderr: ' + stderr);
+                if (error !== null) {
+                  console.log('exec error: ' + error);
+                }
+            });
             deferred.resolve();
         }catch(err){
             deferred.reject(err);
@@ -43,6 +52,10 @@ function rmFolder(sourcePath){
         deferred.resolve();
         deferred.reject(err);
     });
+    // fs.rmdir(sourcePath, function(err){
+    //     deferred.resolve();
+    //     deferred.reject(err);
+    // });
 
     return deferred.promise;
 };
@@ -50,9 +63,9 @@ function rmFolder(sourcePath){
 function rmFile(sourcePath){
     var deferred = Q.defer();
     fs.unlink(sourcePath, function(err){
-	if(err) {
-	  deferred.reject(err);
-	 } else {
+    if(err) {
+      deferred.reject(err);
+     } else {
         deferred.resolve();
         }
     });
@@ -115,6 +128,7 @@ function walkQ(dir, filter){
 
 
 var readFileQ = Q.denodeify(fs.readFile),
+    existsQ = Q.denodeify(fs.existsSync),
     writeFileQ = Q.denodeify(fs.writeFile);
 
 
@@ -127,3 +141,4 @@ exports.rmFolder = rmFolder;
 exports.rmFile = rmFile;
 exports.walk = walkQ;
 exports.rename = rename;
+exports.exists = existsQ;
