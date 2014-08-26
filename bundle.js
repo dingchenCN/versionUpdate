@@ -77,11 +77,10 @@ var handlerChain = [new Handler(/deploy\.info/, function(file){
     }),
     
     new Handler(/kacc\_accelerators\_1\.sql/, function(file){
-        console.log('Finish Update ' + file);
         return fileQ.readFile(file, 'utf8')
         .then(function(data){
             var result = data.replace(/([0-9].[0-2].[0-2])/g, '' + params.releaseRevision);
-            console.log('Finish Update ' + result);
+            
             return fileQ.writeFile(file, result, 'utf8');
         })
         .then(function(){
@@ -128,11 +127,6 @@ var handlerChain = [new Handler(/deploy\.info/, function(file){
                 // We get here with either foo's error or bar's error
                 console.log(error);
             });
-            // .then(function(){
-            //     // console.log('Finish Update ' + file);
-            // }, function(err){
-            //     console.log(err);
-            // });
     })
     ];
 
